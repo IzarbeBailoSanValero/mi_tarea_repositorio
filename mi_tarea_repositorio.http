@@ -1,0 +1,6 @@
+@mi_tarea_repositorio_HostAddress = http://localhost:5192
+
+GET {{mi_tarea_repositorio_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

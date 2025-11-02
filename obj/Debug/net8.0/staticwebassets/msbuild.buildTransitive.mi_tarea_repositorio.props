@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/mi_tarea_repositorio.props" />
+</Project>

@@ -1,0 +1,19 @@
+<!-- ARCHIVO .CSPROJ (XML). es la caja de herramientas ->incorpora las librerías NuGet -->
+
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--librería .net con la que se ejecuta y compila el codigo-->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+
+  <!--ItemGroup define las dependencias -> PackageReference: cada una declara una librería externa -->
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />       <!--swagger-->
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0" />      <!--cliente de bbdd (el de microsoft usando ADO)-->
+  </ItemGroup>
+
+</Project>

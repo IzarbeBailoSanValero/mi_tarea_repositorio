@@ -1,0 +1,76 @@
+***APPSETTINGGS.JSON***
+
+        define la DIRECCIÓN de la base de datos. 
+        es el centro de configuración --> almacena la connection string + credenciales de acceso
+
+        "ConnectionStrings": {
+        "RestauranteDB": "Server=localhost;Database=RestauranteDB;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;"
+        }
+
+            - RestauranteDB es un alias que el codigo utiliza para referirse a la cadena
+            - "Database=RestauranteDB" --> es la bbdd específica
+
+
+
+
+
+👀 Flujo completo de la conexión
+
+1 appsettings.json → contiene la información real de la base de datos.
+
+                     "ConnectionStrings": {
+                        "RestauranteDB": "Server=localhost;Database=RestauranteDB;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;"
+                     }
+
+
+
+
+2 Program.cs → lee la cadena con builder.Configuration.GetConnectionString(...) y la pasa al repositorio.
+
+                                    
+                        a. obtener connectionString definida en appsettings.json
+                        var connectionString = builder.Configuration.GetConnectionString("RestauranteDB");
+
+
+                        b. inyección de dependencias
+                        builder.Services.AddScoped<IPlatoPrincipalRepository, PlatoPrincipalRepository>(provider =>      //addscoped --> define tiempo de servicio --> se crea objeto por cada http
+                        new PlatoPrincipalRepository(connectionString));                                               //cuando algun componente pida esa interfaz --> se creará un objeto de ese tipo
+                                                                    
+
+
+
+
+3 Repositorio (PlatoPrincipalRepository) → recibe la cadena en el constructor y la usa para abrir conexiones.
+
+            a. atributo:
+
+                            private readonly string _connectionString;
+
+
+
+            b. constructor: como ya le hemos dicho al programa que para crear una instancia de PlatoPrincipalRepository utilice determinada conexionString, usará esa
+
+                            public PlatoPrincipalRepository(string connectionString)
+                            {
+                                _connectionString = connectionString;
+                            }
+
+
+
+
+
+4 Controlador (PlatoPrincipalController) → recibe el repositorio ya listo mediante inyección de dependencias.
+
+        public PlatoPrincipalController(IPlatoPrincipalRepository repository)   
+        {                                                                       
+            _repository = repository;
+        }
+
+
+
+
+
+CÓMO VOY. ME FALTA HACER TODO DE PEDIDO Y COMBO. UTILIZARÉ LOS FOREIGN KEY. VOY ENTREGANDO LO QUE TENGOpublic class Combo : Producto {
+
+    public PlatoPrincipal PlatoPrincipal {get;set;}
+    public int PlatoPrincipalId {get;set;}
