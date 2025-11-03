@@ -51,6 +51,7 @@ namespace RestauranteAPI.Repositories
                                 Postre
                                 Descuento
                                 //TODO ///////////////PENSAR COMO HACER AQUÍ LOS CMAPOS QUE SON OBJETODS 
+                                //? NO ENTIENDO COMO SE HACE.
                             }
                             ;
 
