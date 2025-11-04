@@ -8,13 +8,12 @@ using Models;
 
 namespace RestauranteAPI.Repositories
 {
-    public interface IComboRepository 
+    public interface IComboRepository
     {
         Task<List<Combo>> GetAllAsync();
         Task<Combo?> GetByIdAsync(int id);
-        Task AddAsync(Combo combo);
+        Task AddAsync(CreateComboDTO combo);  //aquí lo ha cambiado por el DTO para no tener que meter todos los datos de todos los objetos al llamar a la función
         Task UpdateAsync(Combo combo);
         Task DeleteAsync(int id);
-        Task InicializarDatosAsync();
     }
 }

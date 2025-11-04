@@ -1,134 +1,151 @@
+//este es el codigo de jaime, creo que hay algun nombre de la variable mal en plan el select por ids y tal
+//El ComboRepository usa los IDs del DTO para crear el registro en base de datos.
 
-//VERSIÓN DE CLARA PARA RESOLVER COMBO (VISTA CON ALEJANDRO 4 NOV)
-//clara no ha guardado en base de datos los combos. Por lo que no se puede hacer le crud de base de datos. Ella crea un combo con todas las combinaciones posibles. Solo hace el metodo getall
-
-/*
 using Microsoft.Data.SqlClient;
+using Models;
 
 namespace RestauranteAPI.Repositories
 {
-
-    public class ComboRepository : IComboRepository              //inyecto Las interfaces y repositories de los otros objetos porque los voy a usar en el constructor (modelo clara 4nov clase ok) --> tengo que modificar con iconfiguration el porgram.cs para el combo repository
-    {                                                           
+    public class ComboRepository : IComboRepository
+    {
         private readonly string _connectionString;
-        private readonly IPlatoPrincipalRepository _platoPrincipalRepository;
-        private readonly IBebidaRepository _bebidaRepository;
-        private readonly IPostreRepository _postreRepository;
-        
 
+        private readonly IPlatoPrincipalRepository _platoprincipalrepository;
+        private readonly IBebidaRepository _bebidarepository;
+        private readonly IPostreRepository _postrerepository;
 
-
-
-        public ComboRepository(string connectionString, IPlatoPrincipalRepository platoPrincipalRepository, IBebidaRepository bebidaRepository, IPostreRepository postreRepository)
+        public ComboRepository(string connectionString, IPlatoPrincipalRepository platoprincipalrepository, IBebidaRepository bebidarepository, IPostreRepository postrerepository)
         {
             _connectionString = connectionString;
-            _platoPrincipalRepository = platoPrincipalRepository;
-            _bebidaRepository = bebidaRepository;
-            _postreRepository = postreRepository;
-
+            _platoprincipalrepository = platoprincipalrepository;
+            _bebidarepository = bebidarepository;
+            _postrerepository = postrerepository;
         }
+        
 
-
-
-        public async Task<List<Combo>> GetAllAsync()                       //hace un get all de todas las combinaciones. Dice alex que en algun momento se tinene que unir y que la opcion menos mala es llamar alqui al repsto de repositories
+        public async Task<List<Combo>> GetAllAsync()
         {
-            var allPostres = await _postreRepository.GetAllAsync();
-            var allBebidas = await _bebidaRepository.GetAllAsync();
-            var allPlatosPrincipales = await _platoPrincipalRepository.GetAllAsync();
+            var combos = new List<Combo>();
 
-            var allCombos = new List<Combo>();
-
-            //descuento fijo: 
-            const double descuentoFijo = 0.10;
-
-            //generar todos los combos
-            foreach (var platoPrincipal in allPlatosPrincipales)
+            using (var connection = new SqlConnection(_connectionString))
             {
-                foreach (var bebida in allBebidas)
+                await connection.OpenAsync();
+
+                string query = "SELECT Id, Nombre, PlatoPrincipal, Bebida, Postre, Descuento FROM Combo";
+                using (var command = new SqlCommand(query, connection))
                 {
-                    foreach (var postre in allPostres)
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        var nuevoCombo = new Combo(platoPrincipal, bebida, postre, descuentoFijo);
-                        allCombos.Add(nuevoCombo);
+                        while (await reader.ReadAsync())
+                        {
+                            var combo = new Combo
+                            {
+                                Id = reader.GetInt32(0),
+                                Nombre = reader.GetString(1),
+                                PlatoPrincipal = await _platoprincipalrepository.GetByIdAsync(reader.GetInt32(2)),
+                                Bebida = await _bebidarepository.GetByIdAsync(reader.GetInt32(3)),
+                                Postre = await _postrerepository.GetByIdAsync(reader.GetInt32(4)),
+                                Descuento = Convert.ToDouble(reader.GetDecimal(5)),
+                                
+                            }; 
+                            combo.Precio = combo.CalcularPrecio();
+                            combos.Add(combo);
+                        }
                     }
                 }
-                
             }
-            return allCombos;
-        }                                                                                         
-
-
-
+            return combos;
+        }
 
         public async Task<Combo> GetByIdAsync(int id)
         {
-           
+            Combo combo = null;
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = "SELECT Id, PlatoPrincipal, Bebida, Postre, Descuento FROM Combo WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            combo = new Combo
+                            {
+                                Id = reader.GetInt32(0),
+                                PlatoPrincipal = await _platoprincipalrepository.GetByIdAsync(reader.GetInt32(1)),
+                                Bebida = await _bebidarepository.GetByIdAsync(reader.GetInt32(2)),
+                                Postre = await _postrerepository.GetByIdAsync(reader.GetInt32(3)),
+                                Descuento = Convert.ToDouble(reader.GetDecimal(4)),
+                            };
+                        }
+                    }
+                }
+            }
+            return combo;
         }
 
-        public async Task AddAsync(Combo combo)
+        public async Task AddAsync(CreateComboDTO combo). //al preguntarle a chatgpt si esta bien: 1. El Repository no debería recibir un DTO. El repositorio debería trabajar con modelos (Combo). El controlador debería encargarse de convertir el DTO a modelo. deberia supuestamente Task AddAsync(Combo combo);
         {
-            
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = "INSERT INTO Combo (Nombre, PlatoPrincipal, Bebida, Postre, Descuento) VALUES (@Nombre, @PlatoPrincipal, @Bebida, @Postre, @Descuento)";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Nombre", combo.Nombre);
+                    command.Parameters.AddWithValue("@PlatoPrincipal", combo.IdPlatoPrincipal);
+                    command.Parameters.AddWithValue("@Bebida", combo.IdBebida);
+                    command.Parameters.AddWithValue("@Postre", combo.IdPostre);
+                    command.Parameters.AddWithValue("@Descuento", combo.Descuento);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         public async Task UpdateAsync(Combo combo)
         {
-            
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = "UPDATE Combo SET PlatoPrincipal = @PlatoPrincipal, Bebida = @Bebida, Postre = @Postre, Descuento = @Descuento WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", combo.Id);
+                    command.Parameters.AddWithValue("@PlatoPrincipal", combo.PlatoPrincipal.Id);
+                    command.Parameters.AddWithValue("@Bebida", combo.Bebida.Id);
+                    command.Parameters.AddWithValue("@Postre", combo.Postre.Id);
+                    command.Parameters.AddWithValue("@Descuento", combo.Descuento);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         public async Task DeleteAsync(int id)
         {
-           
-        }
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
 
-        public async Task InicializarDatosAsync()
-        {
-          
+                string query = "DELETE FROM Combo WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
         }
 
 
     }
+
 }
-
-*/
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-//VERSIÓN DE JAIME (VISTA POR ALEJANDRO 4 NOV)
-//ÉL SI QUE GUARDA LA INFO EN BASE DE DATOS. ES LA MEJOR VERSIÓN.
-
-using Microsoft.Data.SqlClient;
-
-namespace RestauranteAPI.Repositories
-{
-
-    public class ComboRepository : IComboRepository           
-    {                                                           
-        private readonly string _connectionString;
-        private readonly IPlatoPrincipalRepository _platoPrincipalRepository;
-        private readonly IBebidaRepository _bebidaRepository;
-        private readonly IPostreRepository _postreRepository;
-        
-
-
-
-
-        public ComboRepository(string connectionString, IPlatoPrincipalRepository platoPrincipalRepository, IBebidaRepository bebidaRepository, IPostreRepository postreRepository)
-        {
-            _connectionString = connectionString;
-            _platoPrincipalRepository = platoPrincipalRepository;
-            _bebidaRepository = bebidaRepository;
-            _postreRepository = postreRepository;
-
-        }
-
-
-
-
-
-
-
