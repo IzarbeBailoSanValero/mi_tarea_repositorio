@@ -34,10 +34,10 @@ builder.Services.AddScoped<IPostreRepository, PostreRepository>(provider =>
     new PostreRepository(connectionString));
 
 
-
-builder.Services.AddScoped<IComboRepository, ComboRepository>(provider =>      //addscoped --> define tiempo de servicio --> se crea objeto por cada http
-new ComboRepository(connectionString));                                               //cuando algun componente pida esa interfaz --> se creará un objeto de ese tipo
-                                                                                               //inyectamos un a instancia de platoPrincipalRepository con la connString
+//lo comento porque aun no me va elcombo
+// builder.Services.AddScoped<IComboRepository, ComboRepository>(provider =>      //addscoped --> define tiempo de servicio --> se crea objeto por cada http
+// new ComboRepository(connectionString));                                               //cuando algun componente pida esa interfaz --> se creará un objeto de ese tipo
+//                                                                                                //inyectamos un a instancia de platoPrincipalRepository con la connString
 
 
 

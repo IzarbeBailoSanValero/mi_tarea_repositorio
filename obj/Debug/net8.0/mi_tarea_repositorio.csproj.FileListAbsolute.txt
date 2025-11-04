@@ -76,3 +76,4 @@
 /Users/izarbe/Documents/2DAW/servidor/mi_tarea_repositorio/obj/Debug/net8.0/mi_tarea_repositorio.pdb
 /Users/izarbe/Documents/2DAW/servidor/mi_tarea_repositorio/obj/Debug/net8.0/mi_tarea_repositorio.genruntimeconfig.cache
 /Users/izarbe/Documents/2DAW/servidor/mi_tarea_repositorio/obj/Debug/net8.0/ref/mi_tarea_repositorio.dll
+/Users/izarbe/Documents/2DAW/servidor/mi_tarea_repositorio/obj/Debug/net8.0/mi_tarea_repositorio.sourcelink.json

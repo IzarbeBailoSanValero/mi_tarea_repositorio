@@ -1,4 +1,4 @@
-//EN ESTE CASO (SIN CAPA SERVICES) EL CONTROLADOR: GESTIONA PETICIONES HTTP + CONTIENE LOGICA DE NEGOCIO + LLAMA A REPOSITORIO PARA ACCEDER A LOS DATOS
+//EN ESTE CASO (SIN CAPA SERVICES) EL CONTROLADOR: GESTIONA PETICIONES HTTP + CONTIENE LOGICA DE NEGOCIO + LLAMA A REPOSITORIO PARA ACCEDER A LOS DATOS --> expone al exterior
 
 using Microsoft.AspNetCore.Mvc;             ////// Importa el espacio de nombres para trabajar con controladores MVC (ControllerBase)
 using RestauranteAPI.Repositories;
@@ -28,7 +28,7 @@ namespace RestauranteAPI.Controllers
 
         //peticiones
         [HttpGet]
-        public async Task<ActionResult<List<Bebida>>> GetBebidas()
+        public async Task<ActionResult<List<Bebida>>> GetBebidas()                    //task es para que sea asíncrona
         {
             var bebidas = await _repository.GetAllAsync();
             return Ok(bebidas);

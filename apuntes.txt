@@ -59,7 +59,7 @@
 
 
 
-4 Controlador (PlatoPrincipalController) → recibe el repositorio ya listo mediante inyección de dependencias.
+4 Controlador (PlatoPrincipalController) → recibe el repositorio ya listo mediante inyección de dependencias. 
 
         public PlatoPrincipalController(IPlatoPrincipalRepository repository)   
         {                                                                       
