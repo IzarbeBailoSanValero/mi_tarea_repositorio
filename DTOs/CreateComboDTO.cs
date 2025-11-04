@@ -1,10 +1,13 @@
-public class CreateComboDTO
+// DTOs/CreateComboDTO.cs
+namespace DTOs
 {
-    public string Nombre { get; set; }
-    public int Precio { get; set; }
-    public int PlatoPrincipalId { get; set; }
-    public int? BebidaId { get; set; }
-    public int? PostreId { get; set; }
-    public double Descuento { get; set; }
-}
+    public class CreateComboDTO
+    {
+        // IDs de los productos seleccionados
+        public int PlatoPrincipalId { get; set; }
+        public int BebidaId { get; set; }
+        public int PostreId { get; set; }
 
+        public double Descuento { get; set; }
+    }
+}
